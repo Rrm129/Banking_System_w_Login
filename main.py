@@ -33,16 +33,16 @@ def open_account():
 def sign_in():
     ssn = input('Social Security: ')
     passW = input('Password: ')
-
-    if Bankaccount.accountsDic[ssn].ssn == ssn and Bankaccount.accountsDic[ssn].password == passW:
-        print('\nLogin Successful')
-        print('^^^^^^^^^^^^^^^^')
-        time.sleep(2)
-        return ssn, False
-
-    print("Wrong password or account does not exist")
-    time.sleep(1)
-    return None, True
+    try:
+        if Bankaccount.get_info_by_ssn(ssn).ssn == ssn and Bankaccount.accountsDic[ssn].password == passW:
+            print('\nLogin Successful')
+            print('^^^^^^^^^^^^^^^^')
+            time.sleep(2)
+            return ssn, False
+    except:
+        print("Wrong password or account does not exist")
+        time.sleep(1)
+        return None, True
 
 def main():
     x = True
@@ -87,10 +87,16 @@ def main():
             if task == '1':
                 print('Account Number: ', Bankaccount.accountsDic[ssn].accountNumber)
                 print('Available Balance: $', Bankaccount.accountsDic[ssn].balance)
-
                 time.sleep(3)
+
+            if task == '2':
+                Bankaccount.accountsDic[ssn].send_money()
+
+
             if task == '5':
                 print("Re-run Program")
+                Bankaccount.accountsDic[ssn].delete_in_database()
+                Bankaccount.accountsDic[ssn].save_in_database()
                 x = False
                 k = False
 
