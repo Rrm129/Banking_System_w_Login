@@ -2,18 +2,14 @@ from bankclasses import *
 import os
 import time
 
-def read_file(file):
-    ifile = open(file, 'r')
-    for line in ifile:
-        print(line)
-    ifile.close()
 
 def import_users(file):
     ifile = open(file, 'r')
     for line in ifile:
         print(line.rstrip("\n"))
-        fname, lname, dob, ssn, password, balance, accNum = line.split(" ")
-        account = Bankaccount(fname, lname, dob, ssn , password, balance, accNum)
+        fname, lname, dob, ssn, password, balance, accNum, transactionHist = line.split(" ")
+        account = Bankaccount(fname, lname, dob, ssn, password, balance, accNum, transactionHist)
+
 
 def open_account():
     ssn = input('Social Security: ')
@@ -26,23 +22,27 @@ def open_account():
     myAccount.save_in_database()
 
     print('Account Created!')
-    print('Your Account Number is: ', myAccount.accountNumber)
+    print('Your Account Number is: ', myAccount.get_accountNumber())
     time.sleep(2)
 
 
-def sign_in():
+def sign_in() -> object:
     ssn = input('Social Security: ')
     passW = input('Password: ')
+
     try:
-        if Bankaccount.get_info_by_ssn(ssn).ssn == ssn and Bankaccount.accountsDic[ssn].password == passW:
+        if Bankaccount.get_info_by_ssn(ssn).get_ssn() == ssn and Bankaccount.accountsDic[ssn].get_password() == passW:
             print('\nLogin Successful')
             print('^^^^^^^^^^^^^^^^')
             time.sleep(2)
             return ssn, False
     except:
-        print("Wrong password or account does not exist")
-        time.sleep(1)
-        return None, True
+        pass
+
+    print("Wrong password or account does not exist")
+    time.sleep(1.5)
+    return ssn, True
+
 
 def main():
     x = True
@@ -76,27 +76,31 @@ def main():
 
         while k:
             os.system('cls')
-            print('1) Display Balance')
+
+            Bankaccount.accountsDic[ssn].display_info()
+
+            print('1) Send Money')
             print('2) Deposit')
-            print('3) Withdraw')
-            print('4) Loan')
+            print('3) Transaction History')
+            print('4) Account Info')
             print('5) Logout')
 
             task = input('input: ')
 
             if task == '1':
-                print('Account Number: ', Bankaccount.accountsDic[ssn].accountNumber)
-                print('Available Balance: $', Bankaccount.accountsDic[ssn].balance)
-                time.sleep(3)
-
-            if task == '2':
                 Bankaccount.accountsDic[ssn].send_money()
 
+            if task == '2':
+                Bankaccount.accountsDic[ssn].deposit_money()
+
+            if task == '3':
+                Bankaccount.accountsDic[ssn].display_transaction_hist()
+
+            if task == '4':
+                print(Bankaccount.accountsDic[ssn].print_information())
 
             if task == '5':
                 print("Re-run Program")
-                Bankaccount.accountsDic[ssn].delete_in_database()
-                Bankaccount.accountsDic[ssn].save_in_database()
                 x = False
                 k = False
 
